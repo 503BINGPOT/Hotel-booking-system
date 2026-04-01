@@ -11,7 +11,7 @@ app.set("view engine", "ejs");
 app.use("/api", roomRouter);
 
 app.get("/", (req, res) => {
-  res.render("index"); // views/index.ejs
+  res.render("index"); 
 });
 
 app.listen(process.env.PORT || 3000);
