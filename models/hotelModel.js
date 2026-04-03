@@ -119,12 +119,12 @@ class Hotel{
     }
 
     resetRooms(){
-        for(let f = 0;f<this.floors.length;f++){
-            for(let i = 0;i<this.floors[f].length;i++){
-                f[i] = 0;
+        for(let f = 0; f < this.floors.length; f++){
+            for(let i = 0; i < this.floors[f].length; i++){
+                this.floors[f][i] = 0;
             }
         }
     }
 }
 
-module.exports = new Hotel;
+module.exports = new Hotel();
