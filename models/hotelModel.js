@@ -54,62 +54,55 @@ class Hotel{
         return available;
     }
 
-    bookRooms(count){
-        if(count > 5){
-            return { success: false, message: "Cannot book more than 5 rooms at once" };
-        }
-        for (let f = 0; f < this.floors.length; f++) {
-            let empty = [];
+    occupy(rooms) {
+    for (let r of rooms) {
+      let pos = this.getPosition(r);
+      this.floors[pos.floor - 1][pos.index] = 1;
+    }
+  }
 
-            for (let i = 0; i < this.floors[f].length; i++){
-                if (this.floors[f][i] === 0) {
-                    empty.push(this.getRoomNumber(f + 1, i));
-                }
-            }
-
-            if (empty.length >= count) {
-                const selected = empty.slice(0, count);
-
-                for (let room of selected) {
-                    const { floor, index } = this.getPosition(room);
-                    this.floors[floor - 1][index] = 1;
-                }
-
-                let travelTime = 0;
-                if (selected.length > 1) {
-                    travelTime = this.getTravelTime(
-                        selected[0],
-                        selected[selected.length - 1]
-                    );
-                }
-
-                return { success: true, rooms: selected, travelTime };
-            }
-        }
-
-        const available = this.getAvailableRooms();
-        if (available.length < count) {
-            return { success: false, message: "Not enough rooms" };
-        }
-
-        const selected = available.slice(0, count);
-
-        for (let room of selected) {
-            const { floor, index } = this.getPosition(room);
-            this.floors[floor - 1][index] = 1;
-        }
-
-        let travelTime = 0;
-        if (selected.length > 1) {
-            travelTime = this.getTravelTime(
-                selected[0],
-                selected[selected.length - 1]
-            );
-        }
-
-        return { success: true, rooms: selected, travelTime };
+  bookRooms(count) {
+    if (count <= 0) {
+      return { success: false, message: "Invalid count" };
     }
 
+    let available = this.getAvailableRooms();
+
+    if (available.length < count) {
+      return { success: false, message: "Not enough rooms" };
+    }
+
+    available.sort((a, b) => {
+      let A = this.getPosition(a);
+      let B = this.getPosition(b);
+
+      if (A.floor !== B.floor) return A.floor - B.floor;
+      return A.index - B.index;
+    });
+
+    let bestSet = [];
+    let bestTime = Infinity;
+
+    for (let i = 0; i <= available.length - count; i++) {
+      let group = available.slice(i, i + count);
+
+      let first = group[0];
+      let last = group[group.length - 1];
+
+      let time = this.getTravelTime(first, last);
+      if (time < bestTime) {
+        bestTime = time;
+        bestSet = group;
+      }
+    }
+    this.occupy(bestSet);
+
+    return {
+      success: true,
+      rooms: bestSet,
+      travelTime: bestTime
+    };
+  }
     randomOccupancy(){
         for(let f = 0;f<this.floors.length;f++){
             for(let i = 0;i<this.floors[f].length;i++){
