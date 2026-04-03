@@ -53,7 +53,7 @@ class Hotel{
         }
         return available;
     }
-
+    
     occupy(rooms) {
     for (let r of rooms) {
       let pos = this.getPosition(r);
@@ -62,6 +62,9 @@ class Hotel{
   }
 
   bookRooms(count) {
+    if(count > 5){
+            return { success: false, message: "Cannot book more than 5 rooms at once" };
+        }
     if (count <= 0) {
       return { success: false, message: "Invalid count" };
     }
