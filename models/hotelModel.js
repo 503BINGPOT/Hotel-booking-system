@@ -54,7 +54,7 @@ class Hotel{
         return available;
     }
     
-     bookRooms(count){
+    bookRooms(count){
         if(count > 5){
             return { success: false, message: "Cannot book more than 5 rooms at once" };
         }
@@ -86,6 +86,11 @@ class Hotel{
                 return { success: true, rooms: selected, travelTime };
             }
         }
+        return { success: false, message: "Not enough rooms available" };
+    }
+
+    
+
     randomOccupancy(){
         for(let f = 0;f<this.floors.length;f++){
             for(let i = 0;i<this.floors[f].length;i++){
