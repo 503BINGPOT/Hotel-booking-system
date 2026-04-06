@@ -54,58 +54,38 @@ class Hotel{
         return available;
     }
     
-    occupy(rooms) {
-    for (let r of rooms) {
-      let pos = this.getPosition(r);
-      this.floors[pos.floor - 1][pos.index] = 1;
-    }
-  }
-
-  bookRooms(count) {
-    if(count > 5){
+     bookRooms(count){
+        if(count > 5){
             return { success: false, message: "Cannot book more than 5 rooms at once" };
         }
-    if (count <= 0) {
-      return { success: false, message: "Invalid count" };
-    }
+        for (let f = 0; f < this.floors.length; f++) {
+            let empty = [];
 
-    let available = this.getAvailableRooms();
+            for (let i = 0; i < this.floors[f].length; i++){
+                if (this.floors[f][i] === 0) {
+                    empty.push(this.getRoomNumber(f + 1, i));
+                }
+            }
 
-    if (available.length < count) {
-      return { success: false, message: "Not enough rooms" };
-    }
+            if (empty.length >= count) {
+                const selected = empty.slice(0, count);
 
-    available.sort((a, b) => {
-      let A = this.getPosition(a);
-      let B = this.getPosition(b);
+                for (let room of selected) {
+                    const { floor, index } = this.getPosition(room);
+                    this.floors[floor - 1][index] = 1;
+                }
 
-      if (A.floor !== B.floor) return A.floor - B.floor;
-      return A.index - B.index;
-    });
+                let travelTime = 0;
+                if (selected.length > 1) {
+                    travelTime = this.getTravelTime(
+                        selected[0],
+                        selected[selected.length - 1]
+                    );
+                }
 
-    let bestSet = [];
-    let bestTime = Infinity;
-
-    for (let i = 0; i <= available.length - count; i++) {
-      let group = available.slice(i, i + count);
-
-      let first = group[0];
-      let last = group[group.length - 1];
-
-      let time = this.getTravelTime(first, last);
-      if (time < bestTime) {
-        bestTime = time;
-        bestSet = group;
-      }
-    }
-    this.occupy(bestSet);
-
-    return {
-      success: true,
-      rooms: bestSet,
-      travelTime: bestTime
-    };
-  }
+                return { success: true, rooms: selected, travelTime };
+            }
+        }
     randomOccupancy(){
         for(let f = 0;f<this.floors.length;f++){
             for(let i = 0;i<this.floors[f].length;i++){
